@@ -24,17 +24,22 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
-import { UserPlus } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { CreateTeacherShema } from "@/schemas/FormSchema"
+import axiosClient from '@/lib/axiosClient';
+import { getXsrfToken } from "@/lib/crf_token"
+import { useState } from "react"
 
 interface DialogProps {
     open: boolean,
-    onOpenChange: (open: boolean) => void
+    onOpenChange: (open: boolean) => void,
+    onSuccess: () => void
 
 }
 
 
-function AddTeacherAndOffice({ open, onOpenChange }: DialogProps) {
+function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
+    const [IsLoading, setIsLoading] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof CreateTeacherShema>>({
         resolver: zodResolver(CreateTeacherShema),
@@ -48,9 +53,56 @@ function AddTeacherAndOffice({ open, onOpenChange }: DialogProps) {
         },
     })
 
-    function onSubmit(values: z.infer<typeof CreateTeacherShema>) {
+
+    // Create Teacher
+
+    async function CreateTeacher(fullName: string, course: string, section: string, YearLebelL: string, username: string, password: string) {
+        setIsLoading(true)
+        try {
+            await axiosClient.get("/sanctum/csrf-cookie");
+            axiosClient({
+                method: 'POST',
+                url: "api/admin/create-teacher",
+                data: {
+                    full_name: fullName,
+                    course: course,
+                    section: section,
+                  yearlavel: YearLebelL,
+                    username: username,
+                    password: password,
+                   
+                },
+                responseType: 'json',
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            }).then((res) => {
+                console.log(res)
+            })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setIsLoading(false)
+        }
+
+    }
+
+
+    async function onSubmit(values: z.infer<typeof CreateTeacherShema>) {
         // Do something with the form values.
-        console.log(values)
+        await CreateTeacher(
+            values.fullName,
+            values.Course,
+            values.Section,
+            values.YearLebel,
+            values.username,
+            values.password
+        )
+
+        // reset the form
+        form.reset()
+        onOpenChange(false)
+         onSuccess?.()
     }
 
 
@@ -128,7 +180,6 @@ function AddTeacherAndOffice({ open, onOpenChange }: DialogProps) {
                                 />
 
 
-
                                 {/*  Course */}
                                 <FormField
                                     control={form.control}
@@ -155,18 +206,20 @@ function AddTeacherAndOffice({ open, onOpenChange }: DialogProps) {
                                         <FormItem>
                                             <FormLabel />
                                             <FormControl>
-                                                <Input placeholder="Password" {...field} />
+                                                <Input type="password" placeholder="Password" {...field} />
                                             </FormControl>
                                             <FormDescription />
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
                             </div>
 
                             <DialogFooter>
                                 <Button type="submit">
-                                    <UserPlus />
+                                    {IsLoading && <Loader2 className="text-gray-300" />}
+                                    {IsLoading ? "Loading..." : "Create"}
                                     Create
                                 </Button>
                                 <DialogClose asChild>

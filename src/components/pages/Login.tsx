@@ -13,24 +13,24 @@ import {
 import { useForm } from "react-hook-form"
 import z from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginSchema } from '@/schemas/FormSchema';
+
+import { getXsrfToken } from '@/lib/crf_token';
+import axiosClient from '@/lib/axiosClient';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 
 export function LoginPage() {
 
+    const [IsLoading, setIsLoading] = useState<boolean>(false);
+
 
     const navigate = useNavigate()
-    
-  // Dummy accounts for testing
-    const dummyAccounts = [
-        { username: "admin", password: "admin", path: "/admin-dashboard" },
-        { username: "teacher", password: "teacher", path: "/teacher-portal" },
-        { username: "student", password: "student", path: "/student-portal" },
-    ];
 
-
-
+    // Dummy accounts for testing
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
@@ -40,22 +40,69 @@ export function LoginPage() {
         },
     })
 
-    async function onSubmit(values: z.infer<typeof LoginSchema>) {
-        const foundAccount = dummyAccounts.find(
-            acc => acc.username === values.username && acc.password === values.password
-        );
 
-        console.log(foundAccount)
+    // Login
 
-        if (foundAccount) {
-            // Redirect to respective portal
-            navigate(foundAccount.path);
-        } else {
-            alert("Invalid username or password");
+    async function LoginAccount(username: string, password: string) {
+
+        console.log(getXsrfToken)
+
+        try {
+            setIsLoading(true)
+
+            await axiosClient.get("/sanctum/csrf-cookie");
+
+
+            const res = await axiosClient.post(
+                "/api/login",
+                {
+                    username: username,
+                    password: password,
+                },
+                {
+                    headers: {
+                        "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                    },
+                }
+            );
+
+            if (res.data.success) {
+
+                toast.success('Successfully Login')
+
+                const user = await axiosClient.get("/api/user", {
+                    withCredentials: true
+                });
+
+                // Redirct base on  role
+                switch (user.data.role) {
+                    case 0:
+                        navigate("/admin-dashboard", { replace: true });
+                        break;
+
+                    case 1:
+                         navigate("/teacher-portal", { replace: true });
+                         break;
+
+                    default:
+
+                        break;
+                }
+            }
+
+        }
+        catch (error: any) {
+            //  show the error message
+            toast.error(error.response.data.message)
+        } finally {
+            setIsLoading(false)
         }
     }
 
+    async function onSubmit(values: z.infer<typeof LoginSchema>) {
 
+        LoginAccount(values.username, values.password)
+    }
 
 
     return (
@@ -97,7 +144,7 @@ export function LoginPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Password" {...field} />
+                                                <Input type='password' placeholder="Password" {...field} />
                                             </FormControl>
                                             <FormMessage className='text-start' />
                                         </FormItem>
@@ -106,7 +153,8 @@ export function LoginPage() {
                             </div>
 
                             <Button className="w-full bg-black text-white hover:bg-gray-900">
-                                Login
+                                {IsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {IsLoading ? "Loading..." : "Login"}
                             </Button>
                         </form>
                     </Form>

@@ -1,8 +1,8 @@
 import { z } from "zod"
 
-export const Department = z.object({
-    departmentName: z.string().nonempty({
-        message: 'Department is required'
+export const Subject = z.object({
+    subject: z.string().nonempty({
+        message: 'subject is required'
     })
 })
 
@@ -33,6 +33,7 @@ export const CreateTeacherShema = z.object({
     .nonempty({
         message: 'password is required'
     })
+ 
 })
 
 
@@ -51,6 +52,10 @@ export const LoginSchema =  z.object({
 export const RequirmentSchema = z.object({
     requirment: z.string().nonempty({
         message: "Requirement is required"
+    }),
+
+    detail: z.string().nonempty({
+        message: 'detail is required'
     })
 })
 

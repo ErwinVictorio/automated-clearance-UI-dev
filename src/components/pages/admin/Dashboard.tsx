@@ -3,11 +3,13 @@ import { Menu } from "lucide-react";
 import { Users, Building2 } from "lucide-react"; // 👈 ADD THIS
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import ConfirmLogout from "@/components/modals/confirmLogout";
 
 function AdminDashboard() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [openSidebar, setOpenSidebar] = useState(false); // 👈 ADD THIS
+  const [isOpen,setIsOpen] = useState<boolean>(false)
 
 
   useEffect(() => {
@@ -25,7 +27,7 @@ function AdminDashboard() {
 
   function HandleLogout() {
 
-    navigate('/')
+    setIsOpen(true)
   }
 
   const navigate = useNavigate();
@@ -39,10 +41,10 @@ function AdminDashboard() {
           <h2 className="text-xl font-bold mb-6">Admin Name</h2>
           <nav className="space-y-3">
             <button
-              onClick={() => navigate('/admin-department-list')}
+              onClick={() => navigate('/admin-subject')}
               className="w-full cursor-pointer text-left py-2 px-3 rounded hover:bg-gray-200"
             >
-              Manage Department
+              Manage Subject
             </button>
             <button
               onClick={() => navigate('/admin-teacher-list')}
@@ -77,13 +79,13 @@ function AdminDashboard() {
               onClick={() => navigate('')}
               className="w-full cursor-pointer text-left py-2 px-3 rounded hover:bg-gray-200"
             >
-              Manage Requirements
+              Manage Teacher
             </button>
             <button
               onClick={() => navigate('/admin-department-list')}
               className="w-full cursor-pointer text-left py-2 px-3 rounded hover:bg-gray-200"
             >
-              Manage Department
+              Manage Subject
             </button>
           </nav>
         </div>
@@ -152,11 +154,12 @@ function AdminDashboard() {
 
       </main>
 
-      {/*  Render The Add Department Modal */}
+      {/* Logout Modal */}
 
-
-
-
+      <ConfirmLogout
+       open={isOpen}
+       onOpenChange={setIsOpen}
+      />
 
     </div>
   );

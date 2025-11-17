@@ -19,6 +19,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import ConfirmLogout from "@/components/modals/confirmLogout";
 
 
 
@@ -27,7 +28,7 @@ function Teacher() {
     // const [teachers, setTeachers] = useState<any[]>([]);
     const [Requirments, setTeachersRequirments] = useState<any[]>([]);
     const [openSidebar, setOpenSidebar] = useState(false);
-
+    const [isOpenLogout,setisOpenLogout] = useState<boolean>(false)
 
     const navigate = useNavigate()
     useEffect(() => {
@@ -61,10 +62,6 @@ function Teacher() {
 
 
 
-    function HandleLogout() {
-        navigate('/')
-    }
-
     return (
         <div className="flex h-screen bg-gray-100">
 
@@ -90,7 +87,7 @@ function Teacher() {
                     </nav>
                 </div>
 
-                <Button onClick={HandleLogout} variant="destructive" className="w-full mt-6">
+               <Button onClick={() => setisOpenLogout(true)} variant="destructive" className="w-full mt-6">
                     Logout
                 </Button>
             </aside>
@@ -125,7 +122,7 @@ function Teacher() {
                     </nav>
                 </div>
 
-                <Button onClick={HandleLogout} variant="destructive" className="w-full mt-6">
+                <Button onClick={() => setisOpenLogout(true)} variant="destructive" className="w-full mt-6">
                     Logout
                 </Button>
             </aside>
@@ -244,15 +241,11 @@ function Teacher() {
                 </Card>
 
 
-
+             <ConfirmLogout
+               open={isOpenLogout}
+               onOpenChange={setisOpenLogout}
+             />
             </main>
-
-
-
-
-  
-
-
         </div>
     );
 }

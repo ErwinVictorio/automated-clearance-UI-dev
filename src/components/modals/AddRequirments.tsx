@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {  RequirmentSchema } from "@/schemas/FormSchema"
+import { RequirmentSchema } from "@/schemas/FormSchema"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
+import { Textarea } from "../ui/textarea"
 
 interface DialogProps {
   open: boolean,
@@ -66,6 +67,23 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="detail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel />
+                      <FormControl>
+                        <Textarea placeholder="Detail" {...field}/>
+                      </FormControl>
+                      <FormDescription />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+
                 <DialogFooter>
                   <Button type="submit">Add Now</Button>
                   <DialogClose asChild>
