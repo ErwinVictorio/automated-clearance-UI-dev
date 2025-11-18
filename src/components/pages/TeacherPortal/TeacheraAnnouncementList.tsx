@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, PenIcon, PenBox, MessageCircleMore } from "lucide-react"
 import { useEffect, useState } from "react"
 import CreateAnnouncement from "@/components/modals/CreateAnoouncement"
 
@@ -78,7 +78,7 @@ function TeacherAnnoucement() {
                 </div>
 
                 <Button onClick={() => setIsOpenModalAnnoucement(true)} className="flex items-center gap-2 cursor-pointer text-white">
-                    <Plus className="h-4 w-4" />
+                    <MessageCircleMore  className="h-4 w-4"  />
                     New Annoucement
                 </Button>
             </section>
@@ -107,9 +107,12 @@ function TeacherAnnoucement() {
                                         <TableCell>{announceMent.id}</TableCell>
                                         <TableCell>{announceMent.title}</TableCell>
                                         <TableCell>{announceMent.message}</TableCell>
-                                        <TableCell className="text-center">
-                                            <Button variant="destructive" size="icon">
+                                        <TableCell className="text-center flex gap-2">
+                                            <Button className="text-red-500 bg-transparent cursor-pointer" size="icon">
                                                 <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button className="text-blue-500 bg-transparent cursor-pointer" size="icon">
+                                                <PenBox/>
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -122,7 +125,7 @@ function TeacherAnnoucement() {
             </section>
 
 
-                 <CreateAnnouncement
+            <CreateAnnouncement
                 open={isOpenModalAnnoucement}
                 onOpenChange={setIsOpenModalAnnoucement}
             />

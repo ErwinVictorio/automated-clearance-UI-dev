@@ -5,6 +5,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { RequirmentSchema } from "@/schemas/FormSchema"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -36,6 +44,7 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
     resolver: zodResolver(RequirmentSchema),
     defaultValues: {
       requirment: "",
+      subject: ""
     },
   })
 
@@ -44,13 +53,12 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
     console.log(values)
   }
 
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Requirment</DialogTitle>
+            <DialogTitle>New Requirment</DialogTitle>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
@@ -75,13 +83,42 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
                     <FormItem>
                       <FormLabel />
                       <FormControl>
-                        <Textarea placeholder="Detail" {...field}/>
+                        <Textarea placeholder="Detail" {...field} />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/*  Display the list of subject here */}
+                <FormField
+                  control={form.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel />
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select Subject" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="light">Light</SelectItem>
+                            <SelectItem value="dark">Dark</SelectItem>
+                            <SelectItem value="system">System</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormDescription />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
 
 
                 <DialogFooter>

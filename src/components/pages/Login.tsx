@@ -81,11 +81,10 @@ export function LoginPage() {
                         break;
 
                     case 1:
-                         navigate("/teacher-portal", { replace: true });
-                         break;
+                        navigate("/teacher-portal", { replace: true });
+                        break;
 
                     default:
-
                         break;
                 }
             }
@@ -109,15 +108,17 @@ export function LoginPage() {
         <div className="flex w-full min-h-screen items-center justify-center p-4">
             <Card className="w-full max-w-sm shadow-md">
                 <CardHeader className="">
-                    <h1 className="text-lg font-semibold">Siena College Tigaon Inc.</h1>
                     <div className="flex justify-center">
                         <img
                             src={imageLogo}
                             alt="Siena College Tigaon Logo"
                             className="w-28 h-28 mb-4"
                         />
+
                     </div>
-                    <h2 className="text-md font-medium">Student Clearance</h2>
+                   <h1 className="scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance">
+                        Siena College Tigaon Inc.
+                        </h1>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>

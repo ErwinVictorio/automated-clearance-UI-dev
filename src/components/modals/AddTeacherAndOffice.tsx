@@ -55,7 +55,6 @@ function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
 
 
     // Create Teacher
-
     async function CreateTeacher(fullName: string, course: string, section: string, YearLebelL: string, username: string, password: string) {
         setIsLoading(true)
         try {

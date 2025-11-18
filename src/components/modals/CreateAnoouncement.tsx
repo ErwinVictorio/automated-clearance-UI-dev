@@ -77,7 +77,7 @@ function CreateAnnouncement({ open, onOpenChange }: DialogProps) {
                                         <FormItem>
                                             <FormLabel />
                                             <FormControl>
-                                                <Textarea placeholder="Description here..." {...field} />
+                                                <Textarea placeholder="Message" {...field} />
                                             </FormControl>
                                             <FormDescription />
                                             <FormMessage />

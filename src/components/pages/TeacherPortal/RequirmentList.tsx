@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Files, PenBox } from "lucide-react"
 import { useState } from "react"
 import CreateRequirments from "@/components/modals/AddRequirments"
 
@@ -44,7 +44,7 @@ function ManageRequirment() {
                 </div>
 
                 <Button onClick={() => setIsOpenModalRequirment(true)} className="flex items-center gap-2 cursor-pointer text-white">
-                    <Plus className="h-4 w-4" />
+                    <Files className="h-4 w-4" />
                     Add Requirment
                 </Button>
             </section>
@@ -64,6 +64,7 @@ function ManageRequirment() {
                                     <TableHead className="font-semibold text-gray-700">Id</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Title</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Detetails</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Subject</TableHead>
                                     <TableHead className="font-semibold text-gray-700 text-center">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -73,8 +74,12 @@ function ManageRequirment() {
                                         <TableCell>1</TableCell>
                                         <TableCell>Sample Requirments</TableCell>
                                         <TableCell>Sample Details Requirments</TableCell>
-                                        <TableCell className="text-center">
-                                            <Button variant="destructive" size="icon">
+                                        <TableCell>Subject</TableCell>
+                                        <TableCell className="text-center flex gap-2">
+                                            <Button className="bg-transparent text-blue-500 cursor-pointer" size="icon">
+                                                <PenBox className="h-4 w-4" />
+                                            </Button>
+                                            <Button className="bg-transparent text-red-500 cursor-pointer" size="icon">
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </TableCell>

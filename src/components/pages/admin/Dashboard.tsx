@@ -1,29 +1,19 @@
 import { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
-import { Users, Building2 } from "lucide-react"; // 👈 ADD THIS
+import { Menu, Trash2 } from "lucide-react";
+import { Users, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import ConfirmLogout from "@/components/modals/confirmLogout";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import AddOffices from "@/components/modals/AddOffices";
+import { useQueryClient } from "@tanstack/react-query";
 
 function AdminDashboard() {
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [openSidebar, setOpenSidebar] = useState(false); // 👈 ADD THIS
-  const [isOpen,setIsOpen] = useState<boolean>(false)
-
-
-  useEffect(() => {
-    setTeachers([
-      { id: 1, name: "Mr. Reyes", subject: "Math" },
-      { id: 2, name: "Mrs. Santos", subject: "English" },
-      { id: 3, name: "Ms. Dela Cruz", subject: "Science" },
-    ]);
-
-    setDepartments([
-      { id: 1, name: "Math Department" },
-      { id: 2, name: "Science Department" },
-    ]);
-  }, []);
+  const [openSidebar, setOpenSidebar] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [IsOpenConfirmModal, setIsOpenConfirmModal] = useState<boolean>(false)
+  const [IsOpenAddOffice,setIsOpenAddOffice] = useState<boolean>(false)
 
   function HandleLogout() {
 
@@ -31,6 +21,7 @@ function AdminDashboard() {
   }
 
   const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -112,7 +103,7 @@ function AdminDashboard() {
           <div className="bg-white p-6 shadow rounded-xl flex items-center justify-between">
             <div>
               <p className="text-gray-500">Total Teachers</p>
-              <h2 className="text-3xl font-semibold">{teachers.length}</h2>
+              <h2 className="text-3xl font-semibold">{0}</h2>
             </div>
             <Users size={40} className="text-blue-600" /> {/* 👈 ICON */}
           </div>
@@ -121,7 +112,7 @@ function AdminDashboard() {
           <div className="bg-white p-6 shadow rounded-xl flex items-center justify-between">
             <div>
               <p className="text-gray-500">Total Departments</p>
-              <h2 className="text-3xl font-semibold">{departments.length}</h2>
+              <h2 className="text-3xl font-semibold">{0}</h2>
             </div>
             <Building2 size={40} className="text-green-600" /> {/* 👈 ICON */}
           </div>
@@ -130,26 +121,36 @@ function AdminDashboard() {
 
         {/* Table */}
         <div className="bg-white p-6 shadow rounded-xl">
-          <h2 className="text-lg font-semibold mb-4">List of Teachers</h2>
-
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b text-gray-600">
-                <th className="p-3">ID</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Subject</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map((t) => (
-                <tr key={t.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{t.id}</td>
-                  <td className="p-3">{t.name}</td>
-                  <td className="p-3">{t.subject}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="flex p-3 justify-between items-center">
+            <h2 className="font-bold">Office List</h2>
+            <Button onClick={() => setIsOpenAddOffice(true)} className="cursor-pointer" variant={'default'}>
+              Add New Office
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Full Name</TableHead>
+                <TableHead>Course</TableHead>
+                <TableHead>Office Department</TableHead>
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>1</TableCell>
+                <TableCell>Erwin Victorio</TableCell>
+                <TableCell>BSIT</TableCell>
+                <TableCell>Library</TableCell>
+                <TableCell>
+                  <Button onClick={() => setIsOpenConfirmModal(true)} className="cursor-pointer text-red-500 bg-transparent">
+                    <Trash2 />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
 
       </main>
@@ -157,8 +158,25 @@ function AdminDashboard() {
       {/* Logout Modal */}
 
       <ConfirmLogout
-       open={isOpen}
-       onOpenChange={setIsOpen}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      />
+
+
+      {/*  For Confirm Delete Modal */}
+      <ConfirmModal
+        open={IsOpenConfirmModal}
+        onOpenChange={setIsOpenConfirmModal}
+        ButtonAction="Yes Delete"
+        description="Are you sure you want to delete this office? This action cannot be undone."
+      />
+
+
+      {/*  Adding Creating Account For Office */}
+      <AddOffices
+        setIsOpen={setIsOpenAddOffice}
+        open={IsOpenAddOffice}
+        onSuccess={() => queryClient.invalidateQueries({queryKey: ['offices']})}
       />
 
     </div>

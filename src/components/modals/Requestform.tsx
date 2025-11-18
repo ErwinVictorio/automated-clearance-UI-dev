@@ -231,7 +231,7 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
               </div>
 
               <Button type="submit" className="w-full md:w-auto">
-                Submit Request
+                Submit
               </Button>
             </form>
           </Form>

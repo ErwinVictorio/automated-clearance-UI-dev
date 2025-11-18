@@ -56,6 +56,9 @@ export const RequirmentSchema = z.object({
 
     detail: z.string().nonempty({
         message: 'detail is required'
+    }),
+    subject: z.string().nonempty({
+        message: "Please Select Subject"
     })
 })
 

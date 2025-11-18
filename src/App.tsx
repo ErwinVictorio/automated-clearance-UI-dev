@@ -13,6 +13,7 @@ import TeacherAnnoucement from './components/pages/TeacherPortal/TeacheraAnnounc
 import ProtectRoute from './lib/ProtectRoute'
 import PreventBack from './lib/PreventBack'
 import SubjectList from './components/pages/admin/Subjects'
+import MyDoc from './components/pages/studentPortal/MyDoc'
 
 
 function App() {
@@ -23,16 +24,11 @@ function App() {
         {/* ------------------------------------------------------------------ */}
         {/* Public routes */}
         <Route path='/' element={
-          <PreventBack>
-            <HomePage />
-          </PreventBack>
-
+          <HomePage />
         } />
 
         <Route path='/login' element={
-          <PreventBack>
-            <LoginPage />
-          </PreventBack>
+          <LoginPage />
 
         } />
         {/* ------------------------------------------------------------------ */}
@@ -43,17 +39,20 @@ function App() {
         <Route
           path='/student-portal'
           element={
-            <ProtectRoute AllowedRoute={[2]}>
-              <Studentportal />
-            </ProtectRoute>
+            <Studentportal />
           }
         />
         <Route
           path='/student-annoucement'
           element={
-            <ProtectRoute AllowedRoute={[2]}>
-              <AnnouncementPage />
-            </ProtectRoute>
+            <AnnouncementPage />
+          }
+        />
+
+        <Route
+          path='/my-docs'
+          element={
+            <MyDoc />
           }
         />
 
@@ -61,25 +60,23 @@ function App() {
         <Route
           path='/admin-dashboard'
           element={
-            <ProtectRoute AllowedRoute={[0]}>
-              <AdminDashboard />
-            </ProtectRoute>
+            <AdminDashboard />
           }
         />
         <Route
           path='/admin-teacher-list'
           element={
-            <ProtectRoute AllowedRoute={[0]}>
-              <TeacherList />
-            </ProtectRoute>
+            // <ProtectRoute AllowedRoute={[0]}>
+            <TeacherList />
+            // </ProtectRoute>
           }
         />
         <Route
           path='/admin-subject'
           element={
-            <ProtectRoute AllowedRoute={[0]}>
-              <SubjectList />
-            </ProtectRoute>
+            // <ProtectRoute AllowedRoute={[0]}>
+            <SubjectList />
+            // </ProtectRoute>
           }
         />
 
@@ -87,25 +84,25 @@ function App() {
         <Route
           path='/teacher-portal'
           element={
-            <ProtectRoute AllowedRoute={[1]}>
-              <Teacher />
-            </ProtectRoute>
+            // <ProtectRoute AllowedRoute={[1]}>
+            <Teacher />
+            // </ProtectRoute>
           }
         />
         <Route
           path='/teacher-requirments'
           element={
-            <ProtectRoute AllowedRoute={[1]}>
-              <ManageRequirment />
-            </ProtectRoute>
+            // <ProtectRoute AllowedRoute={[1]}>
+            <ManageRequirment />
+            // </ProtectRoute>
           }
         />
         <Route
           path='/teacher-announcement'
           element={
-            <ProtectRoute AllowedRoute={[1]}>
-              <TeacherAnnoucement />
-            </ProtectRoute>
+            // <ProtectRoute AllowedRoute={[1]}>
+            <TeacherAnnoucement />
+            // </ProtectRoute>
           }
         />
       </Routes>

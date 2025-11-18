@@ -16,7 +16,7 @@ import Requestform from "@/components/modals/Requestform";
 
 function StudentPortal() {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [IsOpen ,setIsOpen] = useState<boolean>(false);
+    const [IsOpen, setIsOpen] = useState<boolean>(false);
 
     return (
         <>
@@ -43,7 +43,14 @@ function StudentPortal() {
                         >
                             Announcements
                         </Link>
- 
+
+                        <Link
+                            to="/my-docs"
+                            className="text-gray-700 hover:text-orange-500 transition-colors font-medium"
+                        >
+                            My Documents
+                        </Link>
+
                         <Link
                             to="/"
                             className="bg-red-600 text-white px-4 py-2 rounded-full transition-all"
@@ -74,12 +81,12 @@ function StudentPortal() {
                         >
                             Announcements
                         </Link>
+                        
                         <Link
-                            to="/profile"
-                            className="text-gray-700 hover:text-blue-500 transition-colors font-medium"
-                            onClick={() => setMenuOpen(false)}
+                            to="/my-docs"
+                            className="text-gray-700 hover:text-orange-500 transition-colors font-medium"
                         >
-                            Profile
+                            My Documents
                         </Link>
                         <Link
                             to="/logout"
@@ -169,15 +176,15 @@ function StudentPortal() {
                                 </TableCell>
                             </TableRow>
 
-    
+
                         </TableBody>
                     </Table>
-            
+
 
                 </div>
 
                 {/* open the Dialog for Request */}
-                <Requestform open={IsOpen} onOpenChange={setIsOpen}  />
+                <Requestform open={IsOpen} onOpenChange={setIsOpen} />
             </main>
         </>
     );
