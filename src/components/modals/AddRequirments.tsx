@@ -32,6 +32,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { Textarea } from "../ui/textarea"
+import { useEffect } from "react"
+import axiosClient from "@/lib/axiosClient"
+import { getXsrfToken } from "@/lib/crf_token"
 
 interface DialogProps {
   open: boolean,
@@ -44,9 +47,34 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
     resolver: zodResolver(RequirmentSchema),
     defaultValues: {
       requirment: "",
-      subject: ""
+      subject: "",
+      detail: ""
     },
   })
+
+  //  Get teh list of Subjects
+
+  useEffect(() => {
+    async function GetSubjects() {
+      await axiosClient.get("/sanctum/csrf-cookie");
+      await axiosClient({
+        method: "GET",
+        url: 'api/teacher/subjects',
+        responseType: "json",
+        headers: {
+          "X-XSRF-TOKEN": getXsrfToken() ?? ""
+        }
+      }).then((res) => {
+        console.log(res.data)
+      })
+
+    }
+      GetSubjects()
+
+  }, [])
+
+
+
 
   function onSubmit(values: z.infer<typeof RequirmentSchema>) {
     // Do something with the form values.

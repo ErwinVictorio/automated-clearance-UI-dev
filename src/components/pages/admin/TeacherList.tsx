@@ -28,7 +28,7 @@ import { Trash2, Plus } from "lucide-react"
 import AddTeacherAndOffice from "@/components/modals/AddTeacherAndOffice"
 import { useState } from "react"
 import axiosClient from "@/lib/axiosClient"
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"
+import {  useQuery, useQueryClient } from "@tanstack/react-query"
 
 function TeacherList() {
     const [isOpenModalTeacher, setIsOpenModalTeacher] = useState(false);

@@ -73,3 +73,23 @@ export const AnnouncementForm = z.object({
         message: "Desription is required"
     }),
 })
+
+
+
+
+export const Register = z.object({
+    username: z.string().min(2, {
+        message: "Username must be at least 2 characters.",
+    }),
+    password: z.string().refine((val) => val.length > 8, {
+        message: "Password must be at least 8 characters long"
+    }),
+
+    fullname: z.string().nonempty('Name is required'),
+
+    course: z.string().nonempty('course is required'),
+
+    section: z.string().nonempty('section is required'),
+
+    yearLavel: z.string().nonempty('yearLavel is required'),
+})

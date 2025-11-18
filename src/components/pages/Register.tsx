@@ -13,38 +13,84 @@ import {
 import { useForm } from "react-hook-form"
 import z from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosClient from '@/lib/axiosClient';
+import { getXsrfToken } from "@/lib/crf_token"
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import  { Register } from '@/schemas/FormSchema';
 
-const formSchema = z.object({
-    username: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
-    }),
-    password: z.string().refine((val) => val.length > 8, {
-        message: "Password must be at least 8 characters long"
-    }),
 
-    fullname: z.string().nonempty('Name is required'),
-
-    course: z.string().nonempty('course is required'),
-
-    section: z.string().nonempty('section is required'),
-})
 
 export function RegisterPage() {
+    const [IsLoading, setIsLoading] = useState<boolean>(false)
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof Register>>({
+        resolver: zodResolver(Register),
         defaultValues: {
             username: "",
             password: "",
             fullname: "",
-            course: ""
+            course: "",
+            yearLavel: "",
+            section: ""
         },
     })
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
 
-        console.log(values)
+    const navigate = useNavigate()
+
+
+async function CreateTeacher(fullName: string, course: string, section: string, YearLebelL: string, username: string, password: string) {
+    setIsLoading(true)
+
+    try {
+        await axiosClient.get("/sanctum/csrf-cookie");
+
+        const res = await axiosClient.post("api/register", {
+            full_name: fullName,
+            course,
+            section,
+            yearlavel: YearLebelL,
+            username,
+            password
+        }, {
+            headers: {
+                "X-XSRF-TOKEN": getXsrfToken() ?? ""
+            }
+        });
+
+        toast.success(res.data.message)
+
+        if (res.data.success) {
+            navigate('/login')
+        }
+
+    } catch (error: any) {
+        // 👉 GET THE ERROR MESSAGE HERE
+        const msg = error.response?.data?.error;
+        toast.error(msg);
+    } finally {
+        setIsLoading(false);
+    }
+}
+
+
+
+
+
+    async function onSubmit(values: z.infer<typeof Register>) {
+        await CreateTeacher(
+            values.fullname,
+            values.course,
+            values.section,
+            values.yearLavel,
+            values.username,
+            values.password
+        )
+
+        form.reset()
 
     }
 
@@ -59,9 +105,9 @@ export function RegisterPage() {
                             className="w-28 h-28 mb-4"
                         />
                     </div>
-                  <h1 className="scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance">
+                    <h1 className="scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance">
                         Siena College Tigaon Inc.
-                        </h1>
+                    </h1>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -113,6 +159,21 @@ export function RegisterPage() {
                                 />
                             </div>
 
+                            <div className="mb-3">
+                                <FormField
+                                    control={form.control}
+                                    name="yearLavel"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="yearLavel" {...field} />
+                                            </FormControl>
+                                            <FormMessage className='text-start' />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
 
 
 
@@ -138,7 +199,7 @@ export function RegisterPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Password" {...field} />
+                                                <Input type='password' placeholder="Password" {...field} />
                                             </FormControl>
                                             <FormMessage className='text-start' />
                                         </FormItem>
@@ -150,7 +211,8 @@ export function RegisterPage() {
 
 
                             <Button className="w-full bg-black text-white hover:bg-gray-900">
-                                Register
+                                {IsLoading && <Loader2 className="text-gray-300" />}
+                                    {IsLoading ? "Loading..." : "Regsiter"}
                             </Button>
                         </form>
                     </Form>

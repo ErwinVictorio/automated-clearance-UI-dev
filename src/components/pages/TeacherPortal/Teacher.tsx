@@ -3,7 +3,7 @@ import { Menu, FileIcon } from "lucide-react";
 import { Users, Building2 } from "lucide-react"; // 👈 ADD THIS
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-
+import axiosClient from "@/lib/axiosClient"
 
 import {
     Select,
@@ -28,7 +28,8 @@ function Teacher() {
     // const [teachers, setTeachers] = useState<any[]>([]);
     const [Requirments, setTeachersRequirments] = useState<any[]>([]);
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [isOpenLogout,setisOpenLogout] = useState<boolean>(false)
+    const [isOpenLogout, setisOpenLogout] = useState<boolean>(false)
+    const [name,setName] = useState<string>("");
 
     const navigate = useNavigate()
     useEffect(() => {
@@ -61,6 +62,21 @@ function Teacher() {
     }, []);
 
 
+    useEffect(() => {
+        async function check() {
+            try {
+                const res = await axiosClient.get("/api/user", {
+                    withCredentials: true,
+                });// logged in
+                console.log(res.data)
+                setName(res.data.full_name)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        check();
+    }, []);
+
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -70,7 +86,9 @@ function Teacher() {
             {/* SIDEBAR (Desktop) */}
             <aside className="hidden md:flex w-64 bg-white shadow-md p-6 flex-col justify-between">
                 <div>
-                    <h2 className="text-xl font-bold mb-6">Teacher Name</h2>
+                    <h2 className="text-xl font-bold mb-6">
+                       Dashboard
+                    </h2>
                     <nav className="space-y-3">
                         <button
                             onClick={() => navigate('/teacher-requirments')}
@@ -87,7 +105,7 @@ function Teacher() {
                     </nav>
                 </div>
 
-               <Button onClick={() => setisOpenLogout(true)} variant="destructive" className="w-full mt-6">
+                <Button onClick={() => setisOpenLogout(true)} variant="destructive" className="w-full mt-6">
                     Logout
                 </Button>
             </aside>
@@ -105,7 +123,7 @@ function Teacher() {
                     }`}
             >
                 <div>
-                    <h2 className="text-xl font-bold mb-6">Teacher Name</h2>
+                    <h2 className="text-xl font-bold mb-6">Dashboard</h2>
                     <nav className="space-y-3">
                         <button
                             onClick={() => navigate('/teacher-requirments')}
@@ -114,7 +132,7 @@ function Teacher() {
                             Manage Requirements
                         </button>
                         <button
-                               onClick={() => navigate('/teacher-announcement')}
+                            onClick={() => navigate('/teacher-announcement')}
                             className="w-full cursor-pointer text-left py-2 px-3 rounded hover:bg-gray-200"
                         >
                             Manage Announcements
@@ -136,7 +154,7 @@ function Teacher() {
                     <button className="md:hidden p-2 rounded hover:bg-gray-200" onClick={() => setOpenSidebar(true)}>
                         <Menu size={24} />
                     </button>
-                    <h1 className="text-2xl font-bold">Teacher Overview</h1>
+                    <h1 className="text-2xl font-bold">Hi {name}</h1>
                 </div>
 
                 {/* Summary / Stats Cards */}
@@ -241,10 +259,10 @@ function Teacher() {
                 </Card>
 
 
-             <ConfirmLogout
-               open={isOpenLogout}
-               onOpenChange={setisOpenLogout}
-             />
+                <ConfirmLogout
+                    open={isOpenLogout}
+                    onOpenChange={setisOpenLogout}
+                />
             </main>
         </div>
     );

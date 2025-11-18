@@ -42,7 +42,7 @@ function AddOffices({ open, setIsOpen,onSuccess }: DiaglogProps) {
                     section: section,
                     yearlavel: YearLebelL,
                     username: username,
-                    password: password,
+                    password: password
 
                 },
                 responseType: 'json',

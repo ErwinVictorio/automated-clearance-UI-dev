@@ -24,35 +24,56 @@ function App() {
         {/* ------------------------------------------------------------------ */}
         {/* Public routes */}
         <Route path='/' element={
-          <HomePage />
+          <PreventBack>
+            <HomePage />
+          </PreventBack>
+
         } />
 
         <Route path='/login' element={
-          <LoginPage />
+          <PreventBack>
+            <LoginPage />
+          </PreventBack>
+
 
         } />
         {/* ------------------------------------------------------------------ */}
 
-        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/register' element={
+          <PreventBack>
+            <RegisterPage />
+          </PreventBack>
+
+
+        } />
 
         {/* Student routes */}
         <Route
           path='/student-portal'
           element={
-            <Studentportal />
+            <ProtectRoute AllowedRoute={[2]}>
+              <Studentportal />
+            </ProtectRoute>
+
           }
         />
         <Route
           path='/student-annoucement'
           element={
-            <AnnouncementPage />
+            <ProtectRoute AllowedRoute={[2]}>
+              <AnnouncementPage />
+            </ProtectRoute>
+
           }
         />
 
         <Route
           path='/my-docs'
           element={
-            <MyDoc />
+            <ProtectRoute AllowedRoute={[2]}>
+              <MyDoc />
+            </ProtectRoute>
+
           }
         />
 
@@ -60,23 +81,26 @@ function App() {
         <Route
           path='/admin-dashboard'
           element={
-            <AdminDashboard />
+            <ProtectRoute AllowedRoute={[0]}>
+              <AdminDashboard />
+            </ProtectRoute>
+
           }
         />
         <Route
           path='/admin-teacher-list'
           element={
-            // <ProtectRoute AllowedRoute={[0]}>
-            <TeacherList />
-            // </ProtectRoute>
+            <ProtectRoute AllowedRoute={[0]}>
+              <TeacherList />
+            </ProtectRoute>
           }
         />
         <Route
           path='/admin-subject'
           element={
-            // <ProtectRoute AllowedRoute={[0]}>
-            <SubjectList />
-            // </ProtectRoute>
+            <ProtectRoute AllowedRoute={[0]}>
+              <SubjectList />
+            </ProtectRoute>
           }
         />
 
@@ -84,25 +108,25 @@ function App() {
         <Route
           path='/teacher-portal'
           element={
-            // <ProtectRoute AllowedRoute={[1]}>
-            <Teacher />
-            // </ProtectRoute>
+            <ProtectRoute AllowedRoute={[1]}>
+              <Teacher />
+            </ProtectRoute>
           }
         />
         <Route
           path='/teacher-requirments'
           element={
-            // <ProtectRoute AllowedRoute={[1]}>
-            <ManageRequirment />
-            // </ProtectRoute>
+            <ProtectRoute AllowedRoute={[1]}>
+              <ManageRequirment />
+            </ProtectRoute>
           }
         />
         <Route
           path='/teacher-announcement'
           element={
-            // <ProtectRoute AllowedRoute={[1]}>
-            <TeacherAnnoucement />
-            // </ProtectRoute>
+            <ProtectRoute AllowedRoute={[1]}>
+              <TeacherAnnoucement />
+            </ProtectRoute>
           }
         />
       </Routes>
