@@ -5,51 +5,27 @@ import {
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 
-interface Announcement {
-    id: number;
-    author: string;
-    role: string;
-    message: string;
-    created_at: string;
-    avatar?: string;
-}
+import axiosClient from '@/lib/axiosClient';
+import { getXsrfToken } from "@/lib/crf_token";
+import type { Anoouncement } from "@/lib/types/global";
 
 function AnnouncementPage() {
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [announcements, setAnnouncements] = useState<Anoouncement[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 🔥 TEST DATA (No API yet)
-        const sampleData: Announcement[] = [
-            {
-                id: 1,
-                author: "Mrs. Santos",
-                role: "Grade 10 Teacher",
-                message: "Tomorrow, please bring your project for final checking.",
-                created_at: "2025-11-05",
-            },
-            {
-                id: 2,
-                author: "Registrar's Office",
-                role: "Office Announcement",
-                message: "Enrollment for the next semester is now officially open.",
-                created_at: "2025-11-05",
-            },
-            {
-                id: 3,
-                author: "Mr. Reyes",
-                role: "School Principal",
-                message: "General assembly will be held this Friday in the covered court.",
-                created_at: "2025-11-06",
-            },
-        ];
-
-        setTimeout(() => {
-            setAnnouncements(sampleData);
-            setLoading(false);
-        }, 800); // delay para may loading effect
+        axiosClient({
+            method: "GET",
+            url: "api/student/annoucements",
+            responseType: "json",
+            headers: {
+                "X-XSRF-TOKEN": getXsrfToken() ?? ""
+            }
+        }).then((res) => {
+            setAnnouncements(res.data.announcement);
+        }).finally(() => setLoading(false));
     }, []);
 
     return (
@@ -76,13 +52,15 @@ function AnnouncementPage() {
                 <div className="space-y-4">
                     {announcements.map((item) => (
                         <div
-                            key={item.id}
+                            key={item.created_at.toString() + item.title} // or use item.id if exists
                             className="border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition"
                         >
                             <div className="flex items-center gap-3">
                                 <div>
-                                    <p className="font-semibold">{item.author}</p>
-                                    <span className="text-sm text-gray-500">{item.role}</span>
+                                    <p className="font-semibold">{item.user.full_name}</p>
+                                    <span className="text-sm text-gray-500">
+                                        {item.user.course} - {item.user.section} ({item.user.yearlavel})
+                                    </span>
                                 </div>
                             </div>
 

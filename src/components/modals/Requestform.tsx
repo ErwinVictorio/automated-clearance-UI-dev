@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   Form,
   FormControl,
@@ -13,14 +14,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import axiosClient from '@/lib/axiosClient';
+import { getXsrfToken } from "@/lib/crf_token"
+
 import {
   Select,
   SelectContent,
@@ -28,28 +34,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { formSchema } from "@/schemas/FormSchema";
 
+// ZOD SCHEMA
 
-
-const formSchema = z.object({
-  studentName: z.string().min(2, "Student name is required."),
-  course: z.string().min(2, "Course is required."),
-  teacherOffice: z.string().min(1, "Select a teacher or office."),
-  title: z.string().min(2, "Title is required."),
-  driveLink: z.string().url("Enter a valid Google Drive link."),
-  image: z.any().optional(), // ✅ Optional standalone image upload
-  uploads: z.record(z.string(), z.any()).optional(), // ✅ Optional requirement uploads
-});
 
 interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function RequestForm({ open, onOpenChange }: DialogProps) {
-  const [selectedTeacher, setSelectedTeacher] = useState<string>("");
+interface TeachersOrOffice {
 
+  full_name: string,
+  course: string,
+  section: string
+}
+
+export function RequestForm({ open, onOpenChange }: DialogProps) {
+
+
+  const [teacherList, setTeacherList] = useState<TeachersOrOffice[]>([])
 
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,25 +65,42 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
       studentName: "",
       course: "",
       teacherOffice: "",
-      title: "",
+      requirement: "",
       driveLink: "",
-      image: undefined,
-      uploads: {},
+      image: undefined
     },
   });
 
+
+  //    GET THE LIST OF TEACHER OR OFFICE
+
+  useEffect(() => {
+    axiosClient.get("/sanctum/csrf-cookie");
+    axiosClient({
+      method: "GET",
+      url: "api/student/teacher-list",
+      responseType: "json",
+      headers: {
+        "X-XSRF-TOKEN": getXsrfToken() ?? ""
+      }
+    }).then(((res) => {
+      console.log(res.data.teacher)
+      setTeacherList(res.data.teacher)
+    }))
+
+  }, [])
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form Submitted:", values);
-    alert("Request submitted successfully!");
+    console.log("sss");
   }
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl bg-white p-6 rounded-xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-800">
-            Submit Requirments
+            Submit Requirements
           </DialogTitle>
         </DialogHeader>
 
@@ -86,8 +110,11 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-4 flex flex-col justify-between"
+              noValidate
             >
               <div className="space-y-4">
+
+                {/* Student Name */}
                 <FormField
                   control={form.control}
                   name="studentName"
@@ -102,6 +129,7 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                   )}
                 />
 
+                {/* Course */}
                 <FormField
                   control={form.control}
                   name="course"
@@ -116,6 +144,7 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                   )}
                 />
 
+                {/* Teacher / Office */}
                 <FormField
                   control={form.control}
                   name="teacherOffice"
@@ -123,11 +152,39 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                     <FormItem>
                       <FormLabel>Select Teacher or Office</FormLabel>
                       <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedTeacher(value);
-                        }}
-                        defaultValue={field.value}
+                        value={field.value}            // 🔥 FIXED
+                        onValueChange={field.onChange} // 🔥 FIXED
+
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose one..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {teacherList && teacherList.map((teacher, index) => (
+                            <SelectItem key={index} value={`${teacher.full_name} (${teacher.course})}`}>
+                              {`${teacher.full_name} (${teacher.course})`}
+                            </SelectItem>
+                          ))}
+
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/*  REQUIRMENT */}
+                <FormField
+                  control={form.control}
+                  name="requirement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Requirement</FormLabel>
+                      <Select
+                        value={field.value}            // 🔥 FIXED
+                        onValueChange={field.onChange} // 🔥 FIXED
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -138,12 +195,6 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                           <SelectItem value="Prof. Santos (IT Department)">
                             Prof. Santos (IT Department)
                           </SelectItem>
-                          <SelectItem value="Registrar’s Office">
-                            Registrar’s Office
-                          </SelectItem>
-                          <SelectItem value="Prof. Dizon (Math Department)">
-                            Prof. Dizon (Math Department)
-                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -152,41 +203,7 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                 />
 
 
-                <FormField
-                  control={form.control}
-                  name="teacherOffice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Select Requirment</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedTeacher(value);
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose one..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Requirment1">
-                            Requirment1
-                          </SelectItem>
-                          <SelectItem value="Requirment2">
-                            Requirment2
-                          </SelectItem>
-                          <SelectItem value="Requirment3">
-                            Requirment3
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+                {/* Drive Link */}
                 <FormField
                   control={form.control}
                   name="driveLink"
@@ -204,7 +221,8 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                   )}
                 />
 
-                {/*  OPTIONAL IMAGE UPLOAD */}
+
+                {/* Optional Image */}
                 <FormField
                   control={form.control}
                   name="image"
@@ -221,32 +239,33 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
                           }}
                         />
                       </FormControl>
-                      <FormDescription className="text-xs text-gray-500">
-                        Optional supporting image (ID, screenshot, etc.)
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+
               </div>
 
               <Button type="submit" className="w-full md:w-auto">
                 Submit
               </Button>
+
             </form>
           </Form>
 
-          {/* RIGHT SIDE - OPTIONAL REQUIREMENTS */}
+          {/* RIGHT SIDE */}
           <Card className="border shadow-sm bg-gray-50 h-full">
             <CardHeader>
               <CardTitle className="text-lg text-gray-700">
-                <h1>Requirements Here</h1>
+                Requirements Here
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-gray-700">
-
+              {/* Add dynamic requirements here */}
             </CardContent>
           </Card>
+
         </div>
       </DialogContent>
     </Dialog>

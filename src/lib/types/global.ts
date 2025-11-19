@@ -2,3 +2,17 @@ export interface Subject {
     Subject_name: string,
     id: number
 }
+
+
+export interface Anoouncement {
+
+    created_at: Date,
+    message: string,
+    title: string,
+    user:{
+        course: string,
+        full_name: string,
+        section: string,
+        yearlavel: string
+    }
+}

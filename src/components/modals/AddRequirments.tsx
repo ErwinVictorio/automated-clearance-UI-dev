@@ -32,9 +32,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { Textarea } from "../ui/textarea"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import axiosClient from "@/lib/axiosClient"
 import { getXsrfToken } from "@/lib/crf_token"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 interface DialogProps {
   open: boolean,
@@ -42,6 +44,9 @@ interface DialogProps {
 }
 
 function CreateRequirments({ open, onOpenChange }: DialogProps) {
+
+  const [subjects, setSubecjt] = useState<string[]>([]);
+  const [Loading, setLoading] = useState<boolean>(false)
 
   const form = useForm<z.infer<typeof RequirmentSchema>>({
     resolver: zodResolver(RequirmentSchema),
@@ -53,7 +58,6 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
   })
 
   //  Get teh list of Subjects
-
   useEffect(() => {
     async function GetSubjects() {
       await axiosClient.get("/sanctum/csrf-cookie");
@@ -65,20 +69,64 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
           "X-XSRF-TOKEN": getXsrfToken() ?? ""
         }
       }).then((res) => {
-        console.log(res.data)
+        console.log(res.data.data)
+        setSubecjt(res.data.data)
       })
 
     }
-      GetSubjects()
+    GetSubjects()
 
   }, [])
 
 
+  // Create Requirment
+  async function CreateRequirment(
+    title: string,
+    detail: string,
+    subject: string
+  ) {
+
+    setLoading(true)
+    try {
+         await axiosClient.get("/sanctum/csrf-cookie");
+      await axiosClient({
+        method: "POST",
+        url: "api/teacher/requirment",
+        responseType: 'json',
+        data: {
+          requirment: title,
+          detail: detail,
+          subject: subject
+        },
+        headers:{
+             "X-XSRF-TOKEN": getXsrfToken() ?? ""
+        }
+      }).then((res) => {
+        console.log(res)
+        toast.success(res.data.message)
+      })
 
 
-  function onSubmit(values: z.infer<typeof RequirmentSchema>) {
+    } catch (error) {
+      console.log(error)
+
+    }finally{
+       setLoading(false)
+       form.reset();
+       onOpenChange(false)
+    }
+  }
+
+
+
+
+  async function onSubmit(values: z.infer<typeof RequirmentSchema>) {
     // Do something with the form values.
-    console.log(values)
+    CreateRequirment(
+      values.requirment,
+      values.detail,
+      values.subject
+    )
   }
 
   return (
@@ -135,9 +183,10 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
                             <SelectValue placeholder="Select Subject" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="light">Light</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
+                            {subjects && subjects.map((sub, index) => (
+                              <SelectItem key={index} value={sub}>{sub}</SelectItem>
+                            ))}
+
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -150,7 +199,10 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
 
 
                 <DialogFooter>
-                  <Button type="submit">Add Now</Button>
+                  <Button type="submit">
+                    {Loading && <Loader2 className="text-white" />}
+                    {Loading ? "Loading..." : "Add Now"}
+                  </Button>
                   <DialogClose asChild>
                     <Button className="bg-gray-600 text-white">Close</Button>
                   </DialogClose>

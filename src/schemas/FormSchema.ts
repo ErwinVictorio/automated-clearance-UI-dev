@@ -91,5 +91,19 @@ export const Register = z.object({
 
     section: z.string().nonempty('section is required'),
 
-    yearLavel: z.string().nonempty('yearLavel is required'),
+    yearLavel: z.string().nonempty('yearLavel is required')
 })
+
+
+
+
+export  const formSchema = z.object({
+  studentName: z.string().min(2, "Student name is required."),
+  course: z.string().min(2, "Course is required."),
+  teacherOffice: z.string().min(1, "Select a teacher or office."),
+  requirement: z.string().min(1, "Select a requirement."),
+  title: z.string().min(2, "Title is required."),
+  driveLink: z.string().url("Enter a valid Google Drive link."),
+  image: z.any().optional(),
+  uploads: z.record(z.string(), z.any()).optional(),
+});
