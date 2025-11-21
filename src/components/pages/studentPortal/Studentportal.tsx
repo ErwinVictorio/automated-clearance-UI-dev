@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Requestform from "@/components/modals/Requestform";
+import ConfirmLogout from "@/components/modals/confirmLogout";
 
 function StudentPortal() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [IsOpen, setIsOpen] = useState<boolean>(false);
+    const [IsOpenLogout, setIsOpenLogut] = useState<boolean>(false)
 
     return (
         <>
@@ -44,19 +46,13 @@ function StudentPortal() {
                             Announcements
                         </Link>
 
-                        <Link
-                            to="/my-docs"
-                            className="text-gray-700 hover:text-orange-500 transition-colors font-medium"
-                        >
-                            My Documents
-                        </Link>
 
-                        <Link
-                            to="/"
+                        <Button
+                            onClick={() => setIsOpenLogut(true)}
                             className="bg-red-600 text-white px-4 py-2 rounded-full transition-all"
                         >
                             Logout
-                        </Link>
+                        </Button>
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -81,20 +77,13 @@ function StudentPortal() {
                         >
                             Announcements
                         </Link>
-                        
-                        <Link
-                            to="/my-docs"
-                            className="text-gray-700 hover:text-orange-500 transition-colors font-medium"
-                        >
-                            My Documents
-                        </Link>
-                        <Link
-                            to="/logout"
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-600 transition-all"
-                            onClick={() => setMenuOpen(false)}
+
+                        <Button
+                            onClick={() => setIsOpenLogut(true)}
+                            className="bg-red-600 text-white px-4 py-2 rounded-full transition-all"
                         >
                             Logout
-                        </Link>
+                        </Button>
                     </nav>
                 </div>
             </header>
@@ -185,6 +174,9 @@ function StudentPortal() {
 
                 {/* open the Dialog for Request */}
                 <Requestform open={IsOpen} onOpenChange={setIsOpen} />
+
+                {/* Logout Modal */}
+                <ConfirmLogout open={IsOpenLogout} onOpenChange={setIsOpenLogut} />
             </main>
         </>
     );

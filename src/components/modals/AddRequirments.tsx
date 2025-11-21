@@ -88,7 +88,7 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
 
     setLoading(true)
     try {
-         await axiosClient.get("/sanctum/csrf-cookie");
+      await axiosClient.get("/sanctum/csrf-cookie");
       await axiosClient({
         method: "POST",
         url: "api/teacher/requirment",
@@ -98,22 +98,30 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
           detail: detail,
           subject: subject
         },
-        headers:{
-             "X-XSRF-TOKEN": getXsrfToken() ?? ""
+        headers: {
+          "X-XSRF-TOKEN": getXsrfToken() ?? ""
         }
       }).then((res) => {
         console.log(res)
+
+        if (res.data.success == false) {
+          toast.error(res.data.error)
+          return
+        }
+
         toast.success(res.data.message)
+
       })
 
 
-    } catch (error) {
+    } catch (error: any) {
       console.log(error)
 
-    }finally{
-       setLoading(false)
-       form.reset();
-       onOpenChange(false)
+
+    } finally {
+      setLoading(false)
+      form.reset();
+      onOpenChange(false)
     }
   }
 

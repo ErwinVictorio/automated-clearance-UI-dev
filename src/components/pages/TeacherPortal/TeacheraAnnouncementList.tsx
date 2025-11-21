@@ -15,44 +15,22 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Trash2,  PenBox, MessageCircleMore } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Trash2, PenBox, MessageCircleMore } from "lucide-react"
+import { useState } from "react"
 import CreateAnnouncement from "@/components/modals/CreateAnoouncement"
+// import axiosClient from "@/lib/axiosClient"
+
+// type Announcement = {
+//     id: number;
+//     title: string;
+//     message: string;
+//     teacher_or_office_id: number;
+//     created_at: string;
+// };
+
 
 function TeacherAnnoucement() {
-
-    const [TeacherAnnouncements, setTeacherAnnouncements] = useState<any[]>([])
     const [isOpenModalAnnoucement, setIsOpenModalAnnoucement] = useState<boolean>(false);
-
-    useEffect(() => {
-        setTeacherAnnouncements([
-            {
-                id: 1,
-                title: "Class Suspension",
-                message: "All classes are suspended tomorrow due to heavy rainfall. Please wait for further announcements regarding rescheduling.",
-            },
-            {
-                id: 2,
-                title: "Grade Submission Reminder",
-                message: "Teachers are reminded to submit final grades before Friday, November 15, 2025.",
-            },
-            {
-                id: 3,
-                title: "Faculty Meeting",
-                message: "There will be a faculty meeting on Monday at 3:00 PM in the AVR. Attendance is required.",
-            },
-            {
-                id: 4,
-                title: "Christmas Party Preparation",
-                message: "All teachers are invited to join the committee meeting for the upcoming Christmas Party this Thursday at 4 PM.",
-            },
-            {
-                id: 5,
-                title: "Online Portal Maintenance",
-                message: "The teacher portal will be under maintenance this weekend. Please finish uploading all grades and documents before Friday evening.",
-            },
-        ]);
-    }, []);
 
 
     return (
@@ -67,7 +45,7 @@ function TeacherAnnoucement() {
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/components" className="text-gray-800 font-semibold">
+                                <BreadcrumbLink href="#" className="text-gray-800 font-semibold">
                                     Manage Department
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -78,7 +56,7 @@ function TeacherAnnoucement() {
                 </div>
 
                 <Button onClick={() => setIsOpenModalAnnoucement(true)} className="flex items-center gap-2 cursor-pointer text-white">
-                    <MessageCircleMore  className="h-4 w-4"  />
+                    <MessageCircleMore className="h-4 w-4" />
                     New Annoucement
                 </Button>
             </section>
@@ -97,28 +75,28 @@ function TeacherAnnoucement() {
                                 <TableRow>
                                     <TableHead className="font-semibold text-gray-700">Id</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Title</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Detetails</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Message</TableHead>
                                     <TableHead className="font-semibold text-gray-700 text-center">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {TeacherAnnouncements && TeacherAnnouncements.map((announceMent, idx) => (
-                                    <TableRow key={idx} className="hover:bg-gray-50 transition">
-                                        <TableCell>{announceMent.id}</TableCell>
-                                        <TableCell>{announceMent.title}</TableCell>
-                                        <TableCell>{announceMent.message}</TableCell>
+    
+                                    <TableRow className="hover:bg-gray-50 transition">
+                                        <TableCell>ghg</TableCell>
+                                        <TableCell>hg</TableCell>
+                                        <TableCell>dfdg</TableCell>
                                         <TableCell className="text-center flex gap-2">
                                             <Button className="text-red-500 bg-transparent cursor-pointer" size="icon">
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                             <Button className="text-blue-500 bg-transparent cursor-pointer" size="icon">
-                                                <PenBox/>
+                                                <PenBox />
                                             </Button>
                                         </TableCell>
                                     </TableRow>
-                                ))}
-
+             
                             </TableBody>
+
                         </Table>
                     </div>
                 </div>

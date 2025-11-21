@@ -24,7 +24,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
-import { MessageCircleCodeIcon } from "lucide-react"
+import { Loader2, MessageCircleCodeIcon } from "lucide-react"
+import axiosClient from '@/lib/axiosClient';
+import { getXsrfToken } from "@/lib/crf_token"
+import { useState } from "react"
+import { toast } from "sonner"
 
 interface DialogProps {
     open: boolean,
@@ -32,18 +36,59 @@ interface DialogProps {
 }
 
 function CreateAnnouncement({ open, onOpenChange }: DialogProps) {
+    const [IsLoading, setIsLoading] = useState<boolean>(false)
+
+
+
+    // Create Annoucement
+    async function CrteateAnnoucement(
+        title: string,
+        message: string
+    ) {
+
+        setIsLoading(true)
+
+        try {
+            await axiosClient.get("/sanctum/csrf-cookie");
+
+            axiosClient({
+                method: "POST",
+                url: "api/teacher/create-announcement",
+                data: {
+                    title: title,
+                    message: message
+                },
+                responseType: "json",
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            }).then((res) => {
+                toast.success(res.data.message)
+            })
+
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+
 
     const form = useForm<z.infer<typeof AnnouncementForm>>({
         resolver: zodResolver(AnnouncementForm),
         defaultValues: {
             title: "",
-            desription: ""
+            message: ""
         },
     })
 
     function onSubmit(values: z.infer<typeof AnnouncementForm>) {
         // Do something with the form values.
-        console.log(values)
+        CrteateAnnoucement(values.title, values.message)
+        //  reset the form and close the modal
+        form.reset()
+        onOpenChange(false)
     }
 
 
@@ -72,7 +117,7 @@ function CreateAnnouncement({ open, onOpenChange }: DialogProps) {
 
                                 <FormField
                                     control={form.control}
-                                    name="desription"
+                                    name="message"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel />
@@ -86,9 +131,10 @@ function CreateAnnouncement({ open, onOpenChange }: DialogProps) {
                                 />
                                 <DialogFooter>
                                     <Button type="submit">
-                                       <MessageCircleCodeIcon/>
-                                        Create Now
-                                        </Button>
+                                        <MessageCircleCodeIcon />
+                                        {IsLoading && <Loader2/>}
+                                        {IsLoading ? "Loading.." : "Post"}
+                                    </Button>
                                     <DialogClose asChild>
                                         <Button className="bg-gray-600 text-white">Close</Button>
                                     </DialogClose>

@@ -16,11 +16,52 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Trash2, Files, PenBox } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import CreateRequirments from "@/components/modals/AddRequirments"
+import axiosClient from "@/lib/axiosClient"
+import { getXsrfToken } from "@/lib/crf_token"
+
+
+interface Reauirment {
+    created_at: Date,
+    detail: string,
+    title: string,
+    id: number,
+    subject: string
+
+}
+
+
+
 
 function ManageRequirment() {
     const [isOpenModalRequirment, setIsOpenModalRequirment] = useState<boolean>(false);
+    const [requirment, setReqirment] = useState<Reauirment[]>([]);
+
+    useEffect(() => {
+        const fetchRequirments = async () => {
+            try {
+                await axiosClient({
+                    method: "GET",
+                    url: "api/teacher/requirments-list",
+                    headers: {
+                        "X-XSRF-TOKEN": getXsrfToken() ?? "",
+                    }
+                }).then((res) => {
+                    setReqirment(res.data.requirments)
+                })
+                    ;
+
+            } catch (error: any) {
+                console.log("Axios Error:", error.response ?? error.message);
+            }
+        };
+
+        fetchRequirments();
+    }, []);
+
+
+
     return (
         <main className="min-h-screen bg-gray-50">
             {/*  HEADER + BREADCRUMB */}
@@ -69,12 +110,13 @@ function ManageRequirment() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {[1, 2, 3].map((id) => (
-                                    <TableRow key={id} className="hover:bg-gray-50 transition">
+
+                                {requirment && requirment.map((re, idx) => (
+                                    <TableRow key={idx} className="hover:bg-gray-50 transition">
                                         <TableCell>1</TableCell>
-                                        <TableCell>Sample Requirments</TableCell>
-                                        <TableCell>Sample Details Requirments</TableCell>
-                                        <TableCell>Subject</TableCell>
+                                        <TableCell>{re.title}</TableCell>
+                                        <TableCell>{re.detail}</TableCell>
+                                        <TableCell>{re.subject}</TableCell>
                                         <TableCell className="text-center flex gap-2">
                                             <Button className="bg-transparent text-blue-500 cursor-pointer" size="icon">
                                                 <PenBox className="h-4 w-4" />

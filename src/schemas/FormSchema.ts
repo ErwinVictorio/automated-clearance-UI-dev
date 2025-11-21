@@ -69,7 +69,7 @@ export const AnnouncementForm = z.object({
         message: "Tile is required"
     }),
 
-      desription: z.string().nonempty({
+      message: z.string().nonempty({
         message: "Desription is required"
     }),
 })
