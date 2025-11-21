@@ -36,6 +36,7 @@ import {
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // --------------------------
 //  ZOD Schema (Your Schema)
@@ -54,7 +55,8 @@ export const formSchema = z.object({
 
 interface DialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void,
+  onSuccess?: () => void
 }
 
 interface TeachersOrOffice {
@@ -64,7 +66,7 @@ interface TeachersOrOffice {
   id: string;
 }
 
-export function RequestForm({ open, onOpenChange }: DialogProps) {
+export function RequestForm({ open, onOpenChange, onSuccess }: DialogProps) {
   const [teacherList, setTeacherList] = useState<TeachersOrOffice[]>([]);
   const [requirements, setRequirements] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false)
@@ -127,10 +129,9 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
   // SUBMIT FORM
   // --------------------------
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("🔥 SUBMITTED:", values);
+
 
     const formData = new FormData();
-
     formData.append("requestor_name", values.studentName);
     formData.append("section", values.section);
     formData.append("course", values.course);
@@ -140,21 +141,33 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
     formData.append("teacher_id", teacherId);
 
     if (values.image) formData.append("image", values.image);
+    setLoading(true)
+    try {
+      await axiosClient({
+        method: "POST",
+        url: "api/student/submit-requirment",
+        data: formData,
+        responseType: "json",
+        headers: {
+          "X-XSRF-TOKEN": getXsrfToken() ?? ""
+        }
+      }).then((res) => {
+        if (res.data.success == true) {
+          toast.success(res.data.message)
+        }
 
-    console.log(formData)
+      })
+
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
 
 
-    await axiosClient({
-      method: "POST",
-      url: "api/student/submit-requirment",
-      data: formData,
-      responseType: "json",
-      headers: {
-        "X-XSRF-TOKEN": getXsrfToken() ?? ""
-      }
-    }).then((res) => {
-      console.log(res)
-    })
+    form.reset()
+    onOpenChange(false)
+    onSuccess?.()
 
   }
 
@@ -329,7 +342,9 @@ export function RequestForm({ open, onOpenChange }: DialogProps) {
               </div>
 
               <Button type="submit" className="w-full md:w-auto">
-                Submit
+                {isLoading && <Loader2 />}
+                {isLoading ? "Loading.." : "Submit"}
+
               </Button>
             </form>
           </Form>

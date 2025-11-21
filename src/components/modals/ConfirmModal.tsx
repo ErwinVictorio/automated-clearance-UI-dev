@@ -14,8 +14,8 @@ import { DialogClose } from "@radix-ui/react-dialog"
 interface DialogProps {
   open: boolean,
   onOpenChange: (open: boolean) => void,
-  description: string,
-  ButtonAction: string
+  description: string | null,
+  ButtonAction: () => void
 }
 
 export default function ConfirmModal({
@@ -29,7 +29,7 @@ export default function ConfirmModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogTitle className="text-gray-700">Please Confirm</DialogTitle>
           <DialogDescription>
             {description}
           </DialogDescription>
@@ -40,8 +40,8 @@ export default function ConfirmModal({
               Cancel
             </Button>
           </DialogClose>
-          <Button className="cursor-pointer">
-            {ButtonAction}
+          <Button onClick={ButtonAction} className="cursor-pointer">
+            Confirm
           </Button>
         </DialogFooter>
       </DialogContent>

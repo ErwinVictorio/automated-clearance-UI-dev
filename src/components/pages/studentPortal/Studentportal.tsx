@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, Trash2, X } from "lucide-react";
 import imageLogo from "../../../../public/download.png";
 
 import {
@@ -14,11 +14,70 @@ import {
 import { Button } from "@/components/ui/button";
 import Requestform from "@/components/modals/Requestform";
 import ConfirmLogout from "@/components/modals/confirmLogout";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axiosClient from '@/lib/axiosClient';
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import { getXsrfToken } from "@/lib/crf_token";
+import { toast } from "sonner";
+
+
+interface requirmentSubType {
+    drive_link: string,
+    requestor_name: string,
+    status: string,
+    image: string | null,
+    course: string,
+    id: string
+}
+
 
 function StudentPortal() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [IsOpen, setIsOpen] = useState<boolean>(false);
     const [IsOpenLogout, setIsOpenLogut] = useState<boolean>(false)
+    const [IsOpenConfirmModal, setConfirmModal] = useState<boolean>(false);
+    const [selectedId, setSelectedId] = useState<string>("");
+
+
+    const queryClient = useQueryClient()
+
+    // Featch automatically the list of submmited requirmentsb base on curent student login
+    const { data: requirmentSub = [] } = useQuery<requirmentSubType[]>({
+        queryKey: ['requirmentSub'],
+        queryFn: async () => {
+            const res = await axiosClient.get('api/student/submited-requirment');
+
+            //  para maisan ang error pag walang data
+             return res?.data?.data ?? [];
+        }
+    })
+
+
+
+    const DeleteMution = useMutation({
+        mutationFn: async (id: string) => {
+            const res = await axiosClient.delete(`api/student/delete-requirment/${id}`, {
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            });
+            toast.success(res.data.message as any)
+            return res.data
+        } ,
+         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['requirmentSub'] })
+        }
+    })
+
+
+
+    async function HandleDelete() {
+
+        DeleteMution.mutate(selectedId)
+        setConfirmModal(false)
+    }
+
+
 
     return (
         <>
@@ -100,70 +159,76 @@ function StudentPortal() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Requestor</TableHead>
-                                <TableHead>Teacher / Office</TableHead>
                                 <TableHead>Course</TableHead>
                                 <TableHead>Drive Link</TableHead>
                                 <TableHead>Image</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Action</TableHead>
                             </TableRow>
                         </TableHeader>
 
                         <TableBody>
                             {/* Row 1 */}
-                            <TableRow className="hover:bg-gray-50 transition">
-                                <TableCell className="font-medium text-gray-800">Erwin Victorio</TableCell>
-                                <TableCell>Prof. Santos (IT Department)</TableCell>
-                                <TableCell>BSIT - Database Management</TableCell>
-                                <TableCell>
-                                    <a
-                                        href="https://drive.google.com/file/d/12345"
-                                        target="_blank"
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        View Drive
-                                    </a>
-                                </TableCell>
-                                <TableCell>
-                                    <img
-                                        src="https://media.philstar.com/photos/2019/06/19/gen6-jose-rizal2018-06-1622-35-52_2019-06-19_11-00-33256_thumbnail.jpg"
-                                        alt="Preview"
-                                        className="h-12 w-12 object-cover rounded-md border border-gray-200"
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <span className="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                                        Pending
-                                    </span>
-                                </TableCell>
-                            </TableRow>
 
-                            {/* Row 2 */}
-                            <TableRow className="hover:bg-gray-50 transition">
-                                <TableCell className="font-medium text-gray-800">Jessa L. Cruz</TableCell>
-                                <TableCell>Registrar’s Office</TableCell>
-                                <TableCell>Request for TOR</TableCell>
-                                <TableCell>
-                                    <a
-                                        href="https://drive.google.com/file/d/67890"
-                                        target="_blank"
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        View Drive
-                                    </a>
-                                </TableCell>
-                                <TableCell>
-                                    <img
-                                        src="https://media.philstar.com/photos/2019/06/19/gen6-jose-rizal2018-06-1622-35-52_2019-06-19_11-00-33256_thumbnail.jpg"
-                                        alt="Document"
-                                        className="h-12 w-12 object-cover rounded-md border border-gray-200"
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                        Approved
-                                    </span>
-                                </TableCell>
-                            </TableRow>
+                            {requirmentSub && requirmentSub.map((data, idx) => {
+
+
+                                let style = '';
+
+                                switch (data.status) {
+                                    case 'Pending':
+                                        style = 'px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full'
+                                        break;
+
+                                    case 'Approved':
+                                        style = 'px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full'
+                                        break;
+
+                                    default:
+                                        style = 'px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full'
+                                        break;
+                                }
+
+                                return (
+                                    <TableRow key={idx} className="hover:bg-gray-50 transition">
+                                        <TableCell className="font-medium text-gray-800">{data.requestor_name}</TableCell>
+                                        <TableCell>{data.course}</TableCell>
+                                        <TableCell>
+                                            <a
+                                                href={data.drive_link}
+                                                target="_blank"
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                View Drive
+                                            </a>
+                                        </TableCell>
+                                        <TableCell>
+                                            {data.image == null ? "N/A" : (
+                                                <img
+                                                    src={data.image}
+                                                    alt="Preview"
+                                                    className="h-12 w-12 object-cover rounded-md border border-gray-200"
+                                                />
+                                            )}
+
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={style}>
+                                                {data.status}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="flex gap-2">
+                                            <Button onClick={() => {
+                                                setSelectedId(data.id)
+                                                setConfirmModal(true)
+                                            }} className="px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full hover:bg-white cursor-pointer">
+                                                <Trash2 />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+
 
 
                         </TableBody>
@@ -173,10 +238,25 @@ function StudentPortal() {
                 </div>
 
                 {/* open the Dialog for Request */}
-                <Requestform open={IsOpen} onOpenChange={setIsOpen} />
+                <Requestform
+                    open={IsOpen}
+                    onOpenChange={setIsOpen}
+                    onSuccess={() => queryClient.invalidateQueries({ queryKey: ['requirmentSub'] })}
+                />
 
                 {/* Logout Modal */}
-                <ConfirmLogout open={IsOpenLogout} onOpenChange={setIsOpenLogut} />
+                <ConfirmLogout
+                    open={IsOpenLogout}
+                    onOpenChange={setIsOpenLogut}
+                />
+
+                {/*  Confirm Delete */}
+                <ConfirmModal
+                    open={IsOpenConfirmModal}
+                    onOpenChange={setConfirmModal}
+                    ButtonAction={HandleDelete}
+                    description={'This will permanently remove the item from the system'}
+                />
             </main>
         </>
     );
