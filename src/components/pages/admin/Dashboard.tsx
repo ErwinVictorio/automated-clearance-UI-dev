@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, Users, Building2 } from "lucide-react";
+import { Menu, Users, Building2, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import ConfirmLogout from "@/components/modals/confirmLogout";
@@ -22,13 +22,16 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import { getXsrfToken } from "@/lib/crf_token";
+import TeacheViewInfo from "@/components/modals/TeacheViewInfo";
 
 function AdminDashboard() {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [page, setPage] = useState(1);
   const [totalSub, settotalSub] = useState<number>(0);
-    const [totalTeacher, settotalTeacher] = useState<number>(0);
+  const [totalTeacher, settotalTeacher] = useState<number>(0);
+  const [OponInfo, setOpenInfo] = useState<boolean>(false)
+  const [Id,setId] = useState<string>("");
 
   function HandleLogout() {
     setIsOpen(true);
@@ -196,6 +199,7 @@ function AdminDashboard() {
                 <TableHead>Full Name</TableHead>
                 <TableHead>Course</TableHead>
                 <TableHead>Office/Section</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -233,6 +237,15 @@ function AdminDashboard() {
                   <TableCell>{teacher.full_name}</TableCell>
                   <TableCell>{teacher.course}</TableCell>
                   <TableCell>{teacher.section}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => {
+                      setOpenInfo(true)
+                      setId(teacher.id)
+                    }} className="cursor-pointer bg-green-400">
+                      View
+                      <EyeIcon />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -291,6 +304,11 @@ function AdminDashboard() {
 
       {/* Logout Modal */}
       <ConfirmLogout open={isOpen} onOpenChange={setIsOpen} />
+      <TeacheViewInfo
+        onOpenChange={setOpenInfo}
+        open={OponInfo}
+        teacherId={Id ?? ""}
+      />
     </div>
   );
 }

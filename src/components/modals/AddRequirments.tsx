@@ -53,29 +53,32 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
     defaultValues: {
       requirment: "",
       subject: "",
-      detail: ""
+      detail: "",
+      deadline: ""
     },
   })
 
+
+
   //  Get teh list of Subjects
+
+  async function GetSubjects() {
+    await axiosClient.get("/sanctum/csrf-cookie");
+    await axiosClient({
+      method: "GET",
+      url: 'api/teacher/subjects',
+      responseType: "json",
+      headers: {
+        "X-XSRF-TOKEN": getXsrfToken() ?? ""
+      }
+    }).then((res) => {
+      setSubecjt(res.data.data)
+    })
+
+  }
+
   useEffect(() => {
-    async function GetSubjects() {
-      await axiosClient.get("/sanctum/csrf-cookie");
-      await axiosClient({
-        method: "GET",
-        url: 'api/teacher/subjects',
-        responseType: "json",
-        headers: {
-          "X-XSRF-TOKEN": getXsrfToken() ?? ""
-        }
-      }).then((res) => {
-        console.log(res.data.data)
-        setSubecjt(res.data.data)
-      })
-
-    }
     GetSubjects()
-
   }, [])
 
 
@@ -83,7 +86,8 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
   async function CreateRequirment(
     title: string,
     detail: string,
-    subject: string
+    subject: string,
+    deadline: string
   ) {
 
     setLoading(true)
@@ -96,7 +100,8 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
         data: {
           requirment: title,
           detail: detail,
-          subject: subject
+          subject: subject,
+          deadline: deadline
         },
         headers: {
           "X-XSRF-TOKEN": getXsrfToken() ?? ""
@@ -122,6 +127,9 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
       setLoading(false)
       form.reset();
       onOpenChange(false)
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
     }
   }
 
@@ -133,7 +141,8 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
     CreateRequirment(
       values.requirment,
       values.detail,
-      values.subject
+      values.subject,
+      values.deadline
     )
   }
 
@@ -176,35 +185,50 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
                 />
 
                 {/*  Display the list of subject here */}
-                <FormField
-                  control={form.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel />
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select Subject" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {subjects && subjects.map((sub, index) => (
-                              <SelectItem key={index} value={sub}>{sub}</SelectItem>
-                            ))}
+                <div className="flex gap-3">
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel />
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select Subject" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {subjects && subjects.map((sub, index) => (
+                                <SelectItem key={index} value={sub}>{sub}</SelectItem>
+                              ))}
 
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-
+                  <FormField
+                    control={form.control}
+                    name="deadline"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel />
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <DialogFooter>
                   <Button type="submit">

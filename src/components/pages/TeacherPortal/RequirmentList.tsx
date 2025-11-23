@@ -29,8 +29,8 @@ interface Reauirment {
     detail: string,
     title: string,
     id: number,
-    subject: string
-
+    subject: string,
+    deadline: string
 }
 
 function ManageRequirment() {
@@ -39,32 +39,32 @@ function ManageRequirment() {
     const [isOpen, setOpen] = useState<boolean>(false);
     const [Id, setId] = useState<any>("");
 
+
+    const fetchRequirments = async () => {
+        try {
+            await axiosClient({
+                method: "GET",
+                url: "api/teacher/requirments-list",
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? "",
+                }
+            }).then((res) => {
+                setReqirment(res.data.requirments)
+            })
+
+        } catch (error: any) {
+            console.log("Axios Error:", error.response ?? error.message);
+        }
+    };
+
+
     useEffect(() => {
-        const fetchRequirments = async () => {
-            try {
-                await axiosClient({
-                    method: "GET",
-                    url: "api/teacher/requirments-list",
-                    headers: {
-                        "X-XSRF-TOKEN": getXsrfToken() ?? "",
-                    }
-                }).then((res) => {
-                    setReqirment(res.data.requirments)
-                })
-                    ;
-
-            } catch (error: any) {
-                console.log("Axios Error:", error.response ?? error.message);
-            }
-        };
-
         fetchRequirments();
-    }, [requirment])
+    }, [])
 
 
 
     // Handle for Delete
-
     const deleteRequirment = async () => {
         try {
             await axiosClient({
@@ -76,6 +76,7 @@ function ManageRequirment() {
                 }
             }).then((res) => {
                 toast.success(res.data.message)
+                fetchRequirments()
             })
         } catch (error) {
             console.log("Axios Error:", error);
@@ -133,6 +134,7 @@ function ManageRequirment() {
                                     <TableHead className="font-semibold text-gray-700">Title</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Detetails</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Subject</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">Deadline</TableHead>
                                     <TableHead className="font-semibold text-gray-700 text-center">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -144,6 +146,7 @@ function ManageRequirment() {
                                         <TableCell>{re.title}</TableCell>
                                         <TableCell>{re.detail}</TableCell>
                                         <TableCell>{re.subject}</TableCell>
+                                         <TableCell>{re.deadline}</TableCell>
                                         <TableCell className="text-center flex gap-2">
                                             <Button onClick={() => {
                                                 setOpen(true)

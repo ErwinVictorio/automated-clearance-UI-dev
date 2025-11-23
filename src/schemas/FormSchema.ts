@@ -59,6 +59,10 @@ export const RequirmentSchema = z.object({
     }),
     subject: z.string().nonempty({
         message: "Please Select Subject"
+    }),
+
+    deadline: z.string() .nonempty({
+        message: "pick your deadline"
     })
 })
 
