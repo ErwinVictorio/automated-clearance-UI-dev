@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, Users, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -21,11 +21,14 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
+import { getXsrfToken } from "@/lib/crf_token";
 
 function AdminDashboard() {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [page, setPage] = useState(1);
+  const [totalSub, settotalSub] = useState<number>(0);
+    const [totalTeacher, settotalTeacher] = useState<number>(0);
 
   function HandleLogout() {
     setIsOpen(true);
@@ -43,6 +46,37 @@ function AdminDashboard() {
       return res.data.teacher;
     },
   });
+
+
+  //  Total Subject
+  useEffect(() => {
+    axiosClient({
+      method: "GET",
+      url: "api/admin/total-subject",
+      responseType: 'json',
+      headers: {
+        "X-XSRF-TOKEN": getXsrfToken() ?? ""
+      }
+    }).then((res) => {
+      settotalSub(res.data.counted)
+    })
+  }, [])
+
+
+  //  Total Teacher
+  useEffect(() => {
+    axiosClient({
+      method: "GET",
+      url: "api/admin/total-teacher",
+      responseType: 'json',
+      headers: {
+        "X-XSRF-TOKEN": getXsrfToken() ?? ""
+      }
+    }).then((res) => {
+      settotalTeacher(res.data.counted)
+    })
+  }, [])
+
 
 
 
@@ -87,9 +121,8 @@ function AdminDashboard() {
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-md p-6 flex flex-col justify-between transform transition-transform duration-300 md:hidden ${
-          openSidebar ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-md p-6 flex flex-col justify-between transform transition-transform duration-300 md:hidden ${openSidebar ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div>
           <h2 className="text-xl font-bold mb-6">Name</h2>
@@ -136,7 +169,7 @@ function AdminDashboard() {
           <div className="bg-white p-6 shadow rounded-xl flex items-center justify-between">
             <div>
               <p className="text-gray-500">Total Teachers</p>
-              <h2 className="text-3xl font-semibold">{0}</h2>
+              <h2 className="text-3xl font-semibold">{totalTeacher}</h2>
             </div>
             <Users size={40} className="text-blue-600" />
           </div>
@@ -145,7 +178,7 @@ function AdminDashboard() {
           <div className="bg-white p-6 shadow rounded-xl flex items-center justify-between">
             <div>
               <p className="text-gray-500">Total Subject</p>
-              <h2 className="text-3xl font-semibold">{0}</h2>
+              <h2 className="text-3xl font-semibold">{totalSub}</h2>
             </div>
             <Building2 size={40} className="text-green-600" />
           </div>

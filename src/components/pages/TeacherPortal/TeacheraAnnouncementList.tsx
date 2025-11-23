@@ -15,22 +15,83 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Trash2, PenBox, MessageCircleMore } from "lucide-react"
-import { useState } from "react"
+import { Trash2, MessageCircleMore, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import CreateAnnouncement from "@/components/modals/CreateAnoouncement"
-// import axiosClient from "@/lib/axiosClient"
+import axiosClient from "@/lib/axiosClient"
+import { getXsrfToken } from "@/lib/crf_token";
+import { toast } from "sonner"
+import ConfirmModal from "@/components/modals/ConfirmModal"
 
-// type Announcement = {
-//     id: number;
-//     title: string;
-//     message: string;
-//     teacher_or_office_id: number;
-//     created_at: string;
-// };
+
+type Announcement = {
+    id: string;
+    title: string;
+    message: string;
+    created_at: Date;
+};
 
 
 function TeacherAnnoucement() {
     const [isOpenModalAnnoucement, setIsOpenModalAnnoucement] = useState<boolean>(false);
+    const [data, setData] = useState<Announcement[]>([]);
+    const [Id, setId] = useState<string>("");
+    const [IsOpen, setIsOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+
+
+
+
+    useEffect(() => {
+        async function GetAnnoucement() {
+
+            await axiosClient({
+                method: "GET",
+                url: "api/teacher/get-annoucement-by-teacher",
+                responseType: 'json',
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            }).then((res) => {
+                if (res.data.success == true) {
+                    setData(res.data.data)
+                } else {
+                    toast.error(res.data.message)
+                }
+
+            })
+        }
+        GetAnnoucement()
+    }, [data])
+
+    async function DeleetAnnouncement(id: string) {
+        setIsLoading(true)
+        try {
+            await axiosClient({
+                method: "DELETE",
+                url: `api/teacher/deleterequirment/${id}`,
+                responseType: 'json',
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            }).then((res) => {
+                toast.success(res.data.message)
+                setIsOpen(false)
+            })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setIsLoading(false)
+        }
+
+    }
+
+
+    async function HandleDelete() {
+        DeleetAnnouncement(Id)
+    }
+
 
 
     return (
@@ -80,23 +141,24 @@ function TeacherAnnoucement() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-    
-                                    <TableRow className="hover:bg-gray-50 transition">
-                                        <TableCell>ghg</TableCell>
-                                        <TableCell>hg</TableCell>
-                                        <TableCell>dfdg</TableCell>
+
+                                {data && data.map((announcement, idx) => (
+                                    <TableRow key={idx} className="hover:bg-gray-50 transition">
+                                        <TableCell>{announcement.id}</TableCell>
+                                        <TableCell>{announcement.title}</TableCell>
+                                        <TableCell>{announcement.message}</TableCell>
                                         <TableCell className="text-center flex gap-2">
-                                            <Button className="text-red-500 bg-transparent cursor-pointer" size="icon">
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                            <Button className="text-blue-500 bg-transparent cursor-pointer" size="icon">
-                                                <PenBox />
+                                            <Button onClick={() => {
+                                                setIsOpen(true)
+                                                setId(announcement.id)
+                                            }} className="text-red-500 bg-transparent cursor-pointer" size="icon">
+                                                {isLoading && <Loader2 />}
+                                                {isLoading ? "Deleting..." : <Trash2 />}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
-             
+                                ))}
                             </TableBody>
-
                         </Table>
                     </div>
                 </div>
@@ -106,6 +168,14 @@ function TeacherAnnoucement() {
             <CreateAnnouncement
                 open={isOpenModalAnnoucement}
                 onOpenChange={setIsOpenModalAnnoucement}
+            />
+
+            {/*  show the confirm Modal to delete */}
+            <ConfirmModal
+                ButtonAction={HandleDelete}
+                description={'You sure you want to delete this?'}
+                open={IsOpen}
+                onOpenChange={setIsOpen}
             />
         </main>
     )

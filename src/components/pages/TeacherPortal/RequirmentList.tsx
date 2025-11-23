@@ -15,11 +15,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Trash2, Files, PenBox } from "lucide-react"
+import { Trash2, Files } from "lucide-react"
 import { useEffect, useState } from "react"
 import CreateRequirments from "@/components/modals/AddRequirments"
 import axiosClient from "@/lib/axiosClient"
 import { getXsrfToken } from "@/lib/crf_token"
+import ConfirmModal from "@/components/modals/ConfirmModal"
+import { toast } from "sonner"
 
 
 interface Reauirment {
@@ -31,12 +33,11 @@ interface Reauirment {
 
 }
 
-
-
-
 function ManageRequirment() {
     const [isOpenModalRequirment, setIsOpenModalRequirment] = useState<boolean>(false);
     const [requirment, setReqirment] = useState<Reauirment[]>([]);
+    const [isOpen, setOpen] = useState<boolean>(false);
+    const [Id, setId] = useState<any>("");
 
     useEffect(() => {
         const fetchRequirments = async () => {
@@ -58,9 +59,35 @@ function ManageRequirment() {
         };
 
         fetchRequirments();
-    }, []);
+    }, [requirment])
 
 
+
+    // Handle for Delete
+
+    const deleteRequirment = async () => {
+        try {
+            await axiosClient({
+                method: "DELETE",
+                url: `api/teacher/delete-requirment/${Id}`,
+                responseType: 'json',
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? "",
+                }
+            }).then((res) => {
+                toast.success(res.data.message)
+            })
+        } catch (error) {
+            console.log("Axios Error:", error);
+        }
+    }
+
+
+
+    async function handleDelete() {
+        deleteRequirment()
+        setOpen(false)
+    }
 
     return (
         <main className="min-h-screen bg-gray-50">
@@ -118,10 +145,10 @@ function ManageRequirment() {
                                         <TableCell>{re.detail}</TableCell>
                                         <TableCell>{re.subject}</TableCell>
                                         <TableCell className="text-center flex gap-2">
-                                            <Button className="bg-transparent text-blue-500 cursor-pointer" size="icon">
-                                                <PenBox className="h-4 w-4" />
-                                            </Button>
-                                            <Button className="bg-transparent text-red-500 cursor-pointer" size="icon">
+                                            <Button onClick={() => {
+                                                setOpen(true)
+                                                setId(re.id)
+                                            }} className="bg-transparent text-red-500 cursor-pointer" size="icon">
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </TableCell>
@@ -138,6 +165,13 @@ function ManageRequirment() {
             <CreateRequirments
                 open={isOpenModalRequirment}
                 onOpenChange={setIsOpenModalRequirment}
+            />
+
+            <ConfirmModal
+                description={'You sure you want to Delete this?'}
+                ButtonAction={handleDelete}
+                open={isOpen}
+                onOpenChange={setOpen}
             />
         </main>
     )
