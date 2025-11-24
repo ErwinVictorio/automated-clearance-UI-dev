@@ -19,11 +19,16 @@ import { Trash2, Plus } from "lucide-react"
 import { useState } from "react"
 import axiosClient from '@/lib/axiosClient';
 import type { Subject } from "@/lib/types/global"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import AddSubject from "@/components/modals/AddSubject"
+import { getXsrfToken } from "@/lib/crf_token"
+import { toast } from "sonner"
+import ConfirmModal from "@/components/modals/ConfirmModal"
 
 function SubjectList() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [selectedId, setSelectedId] = useState<string>("")
+    const [IsOpenConfim, setIsOpenConfim] = useState<boolean>(false);
 
     const queryClient = useQueryClient();
 
@@ -42,6 +47,29 @@ function SubjectList() {
 
 
 
+    //  Handle Deleting Subjec
+    const DeleteSubjectMution = useMutation({
+        mutationFn: async (id: string) => {
+            const res = await axiosClient.delete(`api/admin/delete-subject/${id}`, {
+                headers: {
+                    "X-XSRF-TOKEN": getXsrfToken() ?? ""
+                }
+            })
+
+            toast.success(res.data.message as any)
+            setIsOpenConfim(false) // to close teh modal
+            return res.data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['subjects'] })
+        }
+    })
+
+
+    function HandleDeleteSubject() {
+
+        DeleteSubjectMution.mutate(selectedId)
+    }
 
 
 
@@ -91,12 +119,15 @@ function SubjectList() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {subjects && subjects.map((dep, index) => (
+                                {subjects && subjects.map((sub, index) => (
                                     <TableRow key={index} className="hover:bg-gray-50 transition">
-                                        <TableCell>{dep.id}</TableCell>
-                                        <TableCell>{dep.Subject_name}</TableCell>
+                                        <TableCell>{sub.id}</TableCell>
+                                        <TableCell>{sub.Subject_name}</TableCell>
                                         <TableCell className="text-center">
-                                            <Button className="cursor-pointer" variant="destructive" size="icon">
+                                            <Button onClick={() => {
+                                                setSelectedId(sub.id)
+                                                setIsOpenConfim(true)
+                                            }} className="cursor-pointer" variant="destructive" size="icon">
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </TableCell>
@@ -115,6 +146,14 @@ function SubjectList() {
                 open={isOpen}
                 onOpenChange={setIsOpen}
                 onSuccess={() => queryClient.invalidateQueries({ queryKey: ['subjects'] })}
+            />
+
+            {/* Confirm MoDAL */}
+            <ConfirmModal
+                open={IsOpenConfim}
+                onOpenChange={setIsOpenConfim}
+                ButtonAction={HandleDeleteSubject}
+                description={'This will permanently remove the item from the system'}
             />
         </main>
     )
