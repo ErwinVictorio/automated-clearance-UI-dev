@@ -107,7 +107,7 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
           "X-XSRF-TOKEN": getXsrfToken() ?? ""
         }
       }).then((res) => {
-        console.log(res)
+
 
         if (res.data.success == false) {
           toast.error(res.data.error)
@@ -117,8 +117,6 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
         toast.success(res.data.message)
 
       })
-
-
     } catch (error: any) {
       console.log(error)
 
@@ -219,15 +217,19 @@ function CreateRequirments({ open, onOpenChange }: DialogProps) {
                     name="deadline"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel />
+                        <FormLabel>Deadline</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input
+                            type="date"
+                            {...field}
+                            min={new Date().toISOString().split("T")[0]}
+                          />
                         </FormControl>
-                        <FormDescription />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                 </div>
 
                 <DialogFooter>

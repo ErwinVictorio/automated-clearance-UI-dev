@@ -289,10 +289,11 @@ export function RequestForm({ open, onOpenChange, onSuccess }: DialogProps) {
                         </FormControl>
 
                         <SelectContent>
-                          {requirements.map((req, i) => (
-                            <SelectItem key={i} value={req.title}>
+                          {requirements.map((req) => (
+                            <SelectItem key={req.id} value={req.id.toString()}>
                               {req.title}
                             </SelectItem>
+
                           ))}
                         </SelectContent>
                       </Select>
@@ -367,14 +368,29 @@ export function RequestForm({ open, onOpenChange, onSuccess }: DialogProps) {
                   <p className="text-gray-500">No requirements loaded.</p>
                 )}
 
-                {requirements.map((req, i) => (
-                  <div key={i} className="p-2 border rounded">
-                    <strong>{req.title}</strong>
-                    <p>{req.detail}</p>
-                    <small className="text-gray-500">{req.subject}</small>
-                  </div>
-                ))}
+                {requirements.map((req) => {
+
+                  const isPast = new Date(req.deadline) < new Date();
+
+                  return (
+                    <div key={req.id} className="p-2 border rounded">
+                      <strong>{req.title}</strong>
+                      <p>{req.detail}</p>
+
+                      <div className="grid gap-1">
+                        <small className="text-gray-500">
+                          Subject: {req.subject}
+                        </small>
+
+                        <small className={isPast ? "text-red-500" : "text-green-500"}>
+                          Deadline: {req.deadline} {isPast && "(overdue)"}
+                        </small>
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
+
             )}
 
 
@@ -386,3 +402,6 @@ export function RequestForm({ open, onOpenChange, onSuccess }: DialogProps) {
 }
 
 export default RequestForm;
+
+
+

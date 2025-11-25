@@ -45,8 +45,6 @@ export function LoginPage() {
 
     async function LoginAccount(username: string, password: string) {
 
-        console.log(getXsrfToken)
-
         try {
             setIsLoading(true)
 

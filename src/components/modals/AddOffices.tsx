@@ -17,6 +17,7 @@ import { Button } from "../ui/button"
 import { Loader2 } from "lucide-react"
 import axiosClient from '@/lib/axiosClient';
 import { getXsrfToken } from "@/lib/crf_token"
+import { toast } from "sonner"
 
 interface DiaglogProps {
     open: boolean,
@@ -50,7 +51,7 @@ function AddOffices({ open, setIsOpen,onSuccess }: DiaglogProps) {
                     "X-XSRF-TOKEN": getXsrfToken() ?? ""
                 }
             }).then((res) => {
-                console.log(res)
+                toast.success(res.data.message)
             })
         } catch (error) {
             console.log(error)

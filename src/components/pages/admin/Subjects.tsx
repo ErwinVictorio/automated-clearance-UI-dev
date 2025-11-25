@@ -39,8 +39,6 @@ function SubjectList() {
         queryFn: async () => {
             const res = await axiosClient.get('/api/admin/list-subject');
 
-            console.log(res.data)
-
             return res.data.data as Subject[]
         }
     })

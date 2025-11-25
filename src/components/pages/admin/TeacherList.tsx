@@ -142,6 +142,7 @@ function TeacherList() {
                                     <TableHead className="font-semibold text-gray-700">Name</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Course</TableHead>
                                     <TableHead className="font-semibold text-gray-700">Section</TableHead>
+                                     <TableHead className="font-semibold text-gray-700">Year</TableHead>
                                     <TableHead className="font-semibold text-gray-700 text-center">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -171,6 +172,7 @@ function TeacherList() {
                                         <TableCell>{teacher.full_name}</TableCell>
                                         <TableCell>{teacher.course}</TableCell>
                                         <TableCell>{teacher.section}</TableCell>
+                                         <TableCell>{teacher.yearlavel}</TableCell>
                                         <TableCell className="text-center">
                                             <Button className="cursor-pointer" onClick={() => {
                                                 //  to store the selected id

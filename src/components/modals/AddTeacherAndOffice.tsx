@@ -29,6 +29,7 @@ import { CreateTeacherShema } from "@/schemas/FormSchema"
 import axiosClient from '@/lib/axiosClient';
 import { getXsrfToken } from "@/lib/crf_token"
 import { useState } from "react"
+import { toast } from "sonner"
 
 interface DialogProps {
     open: boolean,
@@ -38,7 +39,7 @@ interface DialogProps {
 }
 
 
-function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
+function AddTeacherAndOffice({ open, onOpenChange, onSuccess }: DialogProps) {
     const [IsLoading, setIsLoading] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof CreateTeacherShema>>({
@@ -59,17 +60,17 @@ function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
         setIsLoading(true)
         try {
             await axiosClient.get("/sanctum/csrf-cookie");
-            axiosClient({
+            await axiosClient({
                 method: 'POST',
                 url: "api/admin/create-teacher",
                 data: {
                     full_name: fullName,
                     course: course,
                     section: section,
-                  yearlavel: YearLebelL,
+                    yearlavel: YearLebelL,
                     username: username,
                     password: password,
-                   
+
                 },
                 responseType: 'json',
                 headers: {
@@ -77,9 +78,12 @@ function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
                 }
             }).then((res) => {
                 console.log(res)
+                if (res.data.success == true) {
+                    toast.success(res.data.message)
+                }
             })
-        } catch (error) {
-            console.log(error)
+        } catch (error: any) {
+            toast.error(error.response.data.error)
         } finally {
             setIsLoading(false)
         }
@@ -101,7 +105,7 @@ function AddTeacherAndOffice({ open, onOpenChange ,onSuccess}: DialogProps) {
         // reset the form
         form.reset()
         onOpenChange(false)
-         onSuccess?.()
+        onSuccess?.()
     }
 
 

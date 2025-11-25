@@ -99,7 +99,6 @@ function Teacher() {
             },
             data: { status: Status } // <- this was missing
         }).then((res) => {
-            console.log(res.data)
             toast.success(res.data.message)
             setOpenConfrimModal(false)
             //  reload the page after to second
